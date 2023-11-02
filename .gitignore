@@ -12,6 +12,8 @@ model_data
 random_notes.md
 aws
 
+.terraform
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
