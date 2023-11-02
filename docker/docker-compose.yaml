@@ -1,0 +1,303 @@
+version: '3'
+
+networks:
+    smack:
+        name: smack
+        external: true
+
+services:
+    zookeeper:
+        image: confluentinc/cp-zookeeper:7.3.0
+        hostname: zookeeper
+        container_name: zookeeper
+        networks:
+            - smack
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 2181
+            ZOOKEEPER_TICK_TIME: 2000
+
+    broker:
+        image: confluentinc/cp-kafka:7.3.0
+        hostname: broker
+        container_name: broker
+        ports:
+            - '29092:29092'
+        expose:
+            - '9092'
+        depends_on:
+            - zookeeper
+        networks:
+            - smack
+        environment:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+        healthcheck:
+            test: nc -z broker 29092 || exit -1
+            start_period: 5s
+            interval: 5s
+            timeout: 10s
+            retries: 10
+
+    init-kafka:
+        image: confluentinc/cp-kafka:7.3.0
+        depends_on:
+            broker:
+                condition: service_healthy
+        networks:
+            - smack
+        entrypoint: [ '/bin/sh', '-c' ]
+        command: |
+            "
+            # blocks until kafka is reachable
+            kafka-topics --bootstrap-server broker:9092 --list
+
+            echo -e 'Creating kafka topics'
+            kafka-topics --bootstrap-server broker:9092 --create --if-not-exists --topic random_values --replication-factor 1 --partitions 1
+
+            echo -e 'Successfully created the following topics:'
+            kafka-topics --bootstrap-server broker:9092 --list
+            "
+
+    spark-master:
+        image: bitnami/spark:3.3
+        hostname: spark-master
+        container_name: spark-master
+        # deploy:
+        #     resources:
+        #         limits:
+        #             cpus: '1'
+        #             memory: 1024M
+        #         reservations:
+        #             cpus: '0.5'
+        #             memory: 512M
+        ports:
+            - '4040:4040' # application ui
+            - '8080:8080' # web ui
+            - '7077:7077' # worker socket connection
+        networks:
+            - smack
+        environment:
+            - SPARK_MODE=master
+            - SPARK_RPC_AUTHENTICATION_ENABLED=no
+            - SPARK_RPC_ENCRYPTION_ENABLED=no
+            - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+            - SPARK_SSL_ENABLED=no
+            - SPARK_PUBLIC_DNS=spark-master
+            # - SPARK_LOCAL_IP=
+        depends_on:
+            broker:
+                condition: service_healthy
+            cassandra-seed:
+                condition: service_healthy
+            cassandra-node-a:
+                condition: service_healthy
+            cassandra-node-b:
+                condition: service_healthy
+
+    spark-worker:
+        image: bitnami/spark:3.3
+        hostname: spark-worker
+        container_name: spark-worker
+        # deploy:
+        #     resources:
+        #         limits:
+        #             cpus: '1'
+        #             memory: 1024M
+        #         reservations:
+        #             cpus: '0.5'
+        #             memory: 512M
+        networks:
+            - smack
+        environment:
+            - SPARK_MODE=worker
+            - SPARK_MASTER_URL=spark://spark-master:7077
+            - SPARK_WORKER_MEMORY=1G
+            - SPARK_WORKER_CORES=1
+            - SPARK_RPC_AUTHENTICATION_ENABLED=no
+            - SPARK_RPC_ENCRYPTION_ENABLED=no
+            - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+            - SPARK_SSL_ENABLED=no
+            - SPARK_PUBLIC_DNS=spark-worker
+        depends_on:
+            - spark-master
+
+    cassandra-seed:
+        image: cassandra:4.0
+        hostname: cassandra-seed
+        container_name: cassandra-seed
+        # deploy:
+        #     resources:
+        #         limits:
+        #             cpus: '2'
+        #             memory: 4096M
+        #         reservations:
+        #             cpus: '1'
+        #             memory: 1024M
+        ports:
+            - '9042:9042'
+        expose:
+            - '7000'
+        networks:
+            - smack
+        environment:
+            # - CASSANDRA_SEEDS=cassandra-seed
+            - CASSANDRA_BROADCAST_ADDRESS=cassandra-seed
+            - CASSANDRA_CLUSTER_NAME=zenprice-cluster
+            - CASSANDRA_DC=se1
+            - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+        volumes:
+            - ./cassandra1.yaml:/etc/cassandra/cassandra.yaml
+        healthcheck:
+            test: cqlsh -u cassandra -p cassandra
+            interval: 10s
+            timeout: 10s
+            retries: 10
+
+    cassandra-node-a:
+        image: cassandra:4.0
+        hostname: cassandra-node-b
+        container_name: cassandra-node-b
+        # deploy:
+        #     resources:
+        #         limits:
+        #             cpus: '2'
+        #             memory: 4096M
+        #         reservations:
+        #             cpus: '1'
+        #             memory: 1024M
+        ports:
+            - '9043:9042'
+        expose:
+            - '7000'
+        depends_on:
+            cassandra-seed:
+                condition: service_healthy
+        networks:
+            - smack
+        environment:
+            - CASSANDRA_SEEDS=cassandra-seed
+            - CASSANDRA_CLUSTER_NAME=zenprice-cluster
+            - CASSANDRA_DC=se1
+            - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+        volumes:
+            - ./cassandra2.yaml:/etc/cassandra/cassandra.yaml
+        healthcheck:
+            test: cqlsh -u cassandra -p cassandra
+            interval: 10s
+            timeout: 10s
+            retries: 10
+
+    cassandra-node-b:
+        image: cassandra:4.0
+        hostname: cassandra-node-c
+        container_name: cassandra-node-c
+        # deploy:
+        #     resources:
+        #         limits:
+        #             cpus: '2'
+        #             memory: 4096M
+        #         reservations:
+        #             cpus: '1'
+        #             memory: 1024M
+        ports:
+            - '9044:9042'
+        expose:
+            - '7000'
+        depends_on:
+            cassandra-seed:
+                condition: service_healthy
+            cassandra-node-a:
+                condition: service_healthy
+        networks:
+            - smack
+        environment:
+            - CASSANDRA_SEEDS=cassandra-seed
+            - CASSANDRA_CLUSTER_NAME=zenprice-cluster
+            - CASSANDRA_DC=se1
+            - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+        volumes:
+            - ./cassandra3.yaml:/etc/cassandra/cassandra.yaml
+        healthcheck:
+            test: cqlsh -u cassandra -p cassandra
+            interval: 10s
+            timeout: 10s
+            retries: 10
+
+    coordinator:
+        image: stargateio/coordinator-4_0:v2
+        hostname: coordinator
+        container_name: coordinator
+        # deploy:
+        #     resources:
+        #         limits:
+        #             cpus: '2'
+        #             memory: 2048M
+        #         reservations:
+        #             cpus: '1'
+        #             memory: 1024M
+        depends_on:
+            cassandra-seed:
+                condition: service_healthy
+            cassandra-node-a:
+                condition: service_healthy
+            cassandra-node-b:
+                condition: service_healthy
+        ports:
+            - '8081:8081'
+        expose:
+            - '9042'
+        mem_limit: 2G
+        networks:
+            - smack
+        environment:
+            # - JAVA_OPTS="-Xmx2G"
+            - JAVA_OPTS="-Dstargate.auth_tokenttl=3600"
+            - DEVELOPER_MODE=false
+            - CLUSTER_NAME=zenprice-cluster
+            - CLUSTER_VERSION=4.0
+            - SEED=cassandra-seed
+            - RACK_NAME=rack1
+            - DATACENTER_NAME=datacenter1
+            - ENABLE_AUTH=true
+            - SIMPLE_SNITCH=false
+        healthcheck:
+            test: curl -f http://coordinator:8084/checker/readiness || exit 1
+            interval: 15s
+            timeout: 10s
+            retries: 10
+
+    graphqlapi:
+        image: stargateio/graphqlapi:v2
+        hostname: graphqlapi
+        container_name: graphqlapi
+        # deploy:
+        #     resources:
+        #         limits:
+        #             cpus: '1'
+        #             memory: 1024M
+        #         reservations:
+        #             cpus: '0.5'
+        #             memory: 512M
+        depends_on:
+            coordinator:
+                condition: service_healthy
+        ports:
+            - '8085:8080'
+        mem_limit: 2G
+        networks:
+            - smack
+        environment:
+            - QUARKUS_GRPC_CLIENTS_BRIDGE_HOST=coordinator
+            - QUARKUS_GRPC_CLIENTS_BRIDGE_PORT=8091
+            - QUARKUS_HTTP_ACCESS_LOG_ENABLED=true
+            - QUARKUS_LOG_LEVEL=INFO
+        healthcheck:
+            test: curl -f http://graphqlapi:8080/stargate/health || exit 1
+            interval: 5s
+            timeout: 10s
+            retries: 10

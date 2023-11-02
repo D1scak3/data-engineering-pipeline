@@ -1,0 +1,134 @@
+# Benthos config
+http:
+    enabled: true
+    address: 0.0.0.0:4195
+    root_path: /benthos
+    debug_endpoints: false
+    cert_file: ''
+    key_file: ''
+    cors:
+        enabled: false
+        allowed_origins: []
+    basic_auth:
+        enabled: false
+        realm: restricted
+        username: ''
+        password_hash: ''
+        algorithm: sha256
+        salt: ''
+# Kafka input
+# All config fields, showing default values
+input:
+    label: ''
+    kafka:
+        addresses: []
+        topics: []
+        target_version: 2.0.0
+        tls:
+            enabled: false
+            skip_cert_verify: false
+            enable_renegotiation: false
+            root_cas: ''
+            root_cas_file: ''
+            client_certs: []
+        sasl:
+            mechanism: none
+            user: ''
+            password: ''
+            access_token: ''
+            token_cache: ''
+            token_key: ''
+        consumer_group: ''
+        client_id: benthos
+        rack_id: ''
+        start_from_oldest: true
+        checkpoint_limit: 1024
+        commit_period: 1s
+        max_processing_period: 100ms
+        extract_tracing_map: ''
+        group:
+            session_timeout: 10s
+            heartbeat_interval: 3s
+            rebalance_timeout: 60s
+        fetch_buffer_cap: 256
+        multi_header: false
+        batching:
+            count: 0
+            byte_size: 0
+            period: ''
+            check: ''
+            processors: []
+buffer:
+    none: {}
+pipeline:
+    threads: -1
+    processors:
+        - label: ''
+          protobuf:
+              operator: ''
+              message: ''
+              import_paths: []
+# Cassandra output (experimental)
+# All config fields, showing default values
+output:
+    label: ''
+    cassandra:
+        addresses: []
+        tls:
+            enabled: false
+            skip_cert_verify: false
+            enable_renegotiation: false
+            root_cas: ''
+            root_cas_file: ''
+            client_certs: []
+        password_authenticator:
+            enabled: false
+            username: ''
+            password: ''
+        disable_initial_host_lookup: false
+        query: ''
+        args_mapping: ''
+        consistency: QUORUM
+        logged_batch: true
+        max_retries: 3
+        backoff:
+            initial_interval: 1s
+            max_interval: 5s
+        timeout: 600ms
+        max_in_flight: 64
+        batching:
+            count: 0
+            byte_size: 0
+            period: ''
+            check: ''
+            processors: []
+logger:
+    level: INFO
+    format: logfmt
+    add_timestamp: false
+    timestamp_name: time
+    message_name: msg
+    static_fields:
+        '@service': benthos
+    file:
+        path: ''
+        rotate: false
+        rotate_max_age_days: 0
+metrics:
+    prometheus:
+        use_histogram_timing: false
+        histogram_buckets: []
+        add_process_metrics: false
+        add_go_metrics: false
+        push_url: ''
+        push_interval: ''
+        push_job_name: benthos_push
+        push_basic_auth:
+            username: ''
+            password: ''
+        file_output_path: ''
+    mapping: ''
+tracer:
+    none: {}
+shutdown_delay: ''
+shutdown_timeout: 20s

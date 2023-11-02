@@ -1,0 +1,289 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+    name: cron-predicter-0
+
+spec:
+    concurrencyPolicy: Allow
+    schedule: '*/2 * * * *'
+    successfulJobsHistoryLimit: 3
+    failedJobsHistoryLimit: 3
+    jobTemplate:
+        spec:
+            template:
+                spec:
+                    containers:
+                        - name: predicter
+                          image: d1scak3/predicter:lstm_simple
+                          imagePullPolicy: Always
+                          resources:
+                              requests:
+                                  memory: '512Mi'
+                                  cpu: '250m'
+                              limits:
+                                  memory: '512Mi'
+                                  cpu: '250m'
+                          env:
+                              - name: CASSANDRA_URL
+                                value: 'cassandra.cassandra.svc.cluster.local'
+                              - name: CASSANDRA_PORT
+                                value: '9042'
+                              - name: CASSANDRA_USER
+                                value: 'cassandra'
+                              - name: CASSANDRA_PASSWORD
+                                value: 'cassandra'
+                              - name: CASSANDRA_KEYSPACE
+                                value: 'zenprice'
+                              - name: CASSANDRA_SRC_TABLE
+                                value: 'pickle_data_unique'
+                              - name: CASSANDRA_DST_TABLE
+                                value: 'pickle_results'
+                              - name: PRODUCT_MODEL
+                                value: 'samsung Galaxy A51 128GB'
+                              - name: PRODUCT_ID
+                                value: '93'
+                              - name: PRODUCT_SUB
+                                value: 'unlocked'
+                              - name: COMPANY
+                                value: 'Abcdin'
+                              - name: COUNTRY
+                                value: 'CL'
+                              - name: PUSHGATEWAY_URL
+                                value: 'pushgateway-svc.monitoring.svc.cluster.local'
+                              - name: PUSHGATEWAY_PORT
+                                value: '9091'
+                              - name: INSTANCE_LOG_ID
+                                value: "0"
+                    restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-predicter-1
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: predicter
+#                           image: d1scak3/predicter:lstm_simple
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '512Mi'
+#                                   cpu: '500m'
+#                               limits:
+#                                   memory: '512Mi'
+#                                   cpu: '500m'
+#                           env:
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_SRC_TABLE
+#                                 value: 'pickle_data_unique'
+#                               - name: CASSANDRA_DST_TABLE
+#                                 value: 'pickle_results'
+#                               - name: PRODUCT_MODEL
+#                                 value: 'samsung Galaxy A51 128GB'
+#                               - name: PRODUCT_ID
+#                                 value: '93'
+#                               - name: PRODUCT_SUB
+#                                 value: 'unlocked'
+#                               - name: COMPANY
+#                                 value: 'Abcdin'
+#                               - name: COUNTRY
+#                                 value: 'CL'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: "B"
+#                     restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-predicter-2
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: predicter
+#                           image: d1scak3/predicter:lstm_simple
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '512Mi'
+#                                   cpu: '250m'
+#                               limits:
+#                                   memory: '512Mi'
+#                                   cpu: '250m'
+#                           env:
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_SRC_TABLE
+#                                 value: 'pickle_data_unique'
+#                               - name: CASSANDRA_DST_TABLE
+#                                 value: 'pickle_results'
+#                               - name: PRODUCT_MODEL
+#                                 value: 'samsung Galaxy A51 128GB'
+#                               - name: PRODUCT_ID
+#                                 value: '93'
+#                               - name: PRODUCT_SUB
+#                                 value: 'unlocked'
+#                               - name: COMPANY
+#                                 value: 'Abcdin'
+#                               - name: COUNTRY
+#                                 value: 'CL'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: "2"
+#                     restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-predicter-3
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: predicter
+#                           image: d1scak3/predicter:lstm_simple
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '512Mi'
+#                                   cpu: '250m'
+#                               limits:
+#                                   memory: '512Mi'
+#                                   cpu: '250m'
+#                           env:
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_SRC_TABLE
+#                                 value: 'pickle_data_unique'
+#                               - name: CASSANDRA_DST_TABLE
+#                                 value: 'pickle_results'
+#                               - name: PRODUCT_MODEL
+#                                 value: 'samsung Galaxy A51 128GB'
+#                               - name: PRODUCT_ID
+#                                 value: '93'
+#                               - name: PRODUCT_SUB
+#                                 value: 'unlocked'
+#                               - name: COMPANY
+#                                 value: 'Abcdin'
+#                               - name: COUNTRY
+#                                 value: 'CL'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: "3"
+#                     restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-predicter-4
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: predicter
+#                           image: d1scak3/predicter:lstm_simple
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '512Mi'
+#                                   cpu: '250m'
+#                               limits:
+#                                   memory: '512Mi'
+#                                   cpu: '250m'
+#                           env:
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cassandra'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_SRC_TABLE
+#                                 value: 'pickle_data_unique'
+#                               - name: CASSANDRA_DST_TABLE
+#                                 value: 'pickle_results'
+#                               - name: PRODUCT_MODEL
+#                                 value: 'samsung Galaxy A51 128GB'
+#                               - name: PRODUCT_ID
+#                                 value: '93'
+#                               - name: PRODUCT_SUB
+#                                 value: 'unlocked'
+#                               - name: COMPANY
+#                                 value: 'Abcdin'
+#                               - name: COUNTRY
+#                                 value: 'CL'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: "4"
+#                     restartPolicy: OnFailure

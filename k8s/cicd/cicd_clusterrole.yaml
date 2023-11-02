@@ -1,0 +1,85 @@
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#     name: ci-cd-helper
+# rules:
+#     - apiGroups: ['apps']
+#       resources: ['deployments', 'replicasets']
+#       verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+#     - apiGroups: ['']
+#       resources: ['pods']
+#       verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+#     - apiGroups: ['batch']
+#       resources: ['jobs', 'cronjobs']
+#       verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: ci-cd-helper-binding
+# subjects:
+# - kind: Group
+#   name: "eks-ci-cd-helper-group"
+#   apiGroup: rbac.authorization.k8s.io
+# roleRef:
+#   kind: ClusterRole
+#   name: ci-cd-helper
+#   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: zenprice
+  name: ci-cd-helper-role
+rules:
+- apiGroups: ['apps']
+  resources: ['deployments', 'replicasets']
+  verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+- apiGroups: ['']
+  resources: ['pods']
+  verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+- apiGroups: ['batch']
+  resources: ['jobs', 'cronjobs']
+  verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: zenprice
+  name: ci-cd-helper-role-binding
+subjects:
+- kind: Group
+  name: eks-ci-cd-helper-group
+roleRef:
+  kind: Role
+  name: ci-cd-helper-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: cassandra
+  name: ci-cd-helper-role
+rules:
+- apiGroups: ['apps']
+  resources: ['deployments', 'replicasets']
+  verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+- apiGroups: ['']
+  resources: ['pods']
+  verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+- apiGroups: ['batch']
+  resources: ['jobs', 'cronjobs']
+  verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: cassandra
+  name: ci-cd-helper-role-binding
+subjects:
+- kind: Group
+  name: eks-ci-cd-helper-group
+roleRef:
+  kind: Role
+  name: ci-cd-helper-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: nginx-config
+data:
+    default.conf: |
+        server {
+          listen 80;
+          listen [::]:80;
+          server_name  _;
+
+          location /{
+            add_header Content-Type text/plain;
+            return 200 "OK.";
+          }
+
+          location /segmentation {
+            proxy_pass http://myservice.mynamespace.svc.cluster.local:80;
+          }
+        }

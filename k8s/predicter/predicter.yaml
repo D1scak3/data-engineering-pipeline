@@ -1,0 +1,179 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: predicter
+
+spec:
+    # serviceName: predicter-svc
+    selector:
+        matchLabels:
+            app: predicter
+
+    template:
+        metadata:
+            labels:
+                app: predicter
+
+        spec:
+            # restartPolicy: OnFailure
+            containers:
+                - name: predicter
+                  image: d1scak3/predicter:lstm_simple
+                  command: ["sleep", "20000000"]
+                  imagePullPolicy: Always
+                  resources:
+                      requests:
+                          memory: '512Mi'
+                          cpu: '250m'
+                      limits:
+                          memory: '512Mi'
+                          cpu: '250m'
+                  env:
+                      - name: CASSANDRA_URL
+                        value: 'cassandra.cassandra.svc.cluster.local'
+                      - name: CASSANDRA_PORT
+                        value: '9042'
+                      - name: CASSANDRA_USER
+                        value: 'cron_user'
+                      - name: CASSANDRA_PASSWORD
+                        value: 'cron_password'
+                      - name: CASSANDRA_KEYSPACE
+                        value: 'zenprice'
+                      - name: CASSANDRA_SRC_TABLE
+                        value: 'pickle_data'
+                      - name: CASSANDRA_DST_TABLE
+                        value: 'pickle_results'
+                      - name: PRODUCT_MODEL
+                        value: 'samsung Galaxy A51 128GB'
+                      - name: PRODUCT_ID
+                        value: '93'
+                      - name: PRODUCT_SUB
+                        value: 'unlocked'
+                      - name: COMPANY
+                        value: 'Abcdin'
+                      - name: COUNTRY
+                        value: 'CL'
+                      - name: PUSHGATEWAY_URL
+                        value: 'pushgateway-svc.monitoring.svc.cluster.local'
+                      - name: PUSHGATEWAY_PORT
+                        value: '9091'
+                      - name: INSTANCE_LOG_ID
+                        value: "1"
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#     name: predicter-2
+
+# spec:
+#     # serviceName: predicter-svc
+#     selector:
+#         matchLabels:
+#             app: predicter-2
+
+#     template:
+#         metadata:
+#             labels:
+#                 app: predicter-2
+
+#         spec:
+#             # restartPolicy: OnFailure
+#             containers:
+#                 - name: predicter-2
+#                   image: d1scak3/predicter:lstm_simple
+#                   command: ["sleep", "20000000"]
+#                   resources:
+#                       requests:
+#                           memory: '512Mi'
+#                           cpu: '500m'
+#                       limits:
+#                           memory: '512Mi'
+#                           cpu: '500m'
+#                   env:
+#                       - name: CASSANDRA_URL
+#                         value: 'cassandra.cassandra.svc.cluster.local'
+#                       - name: CASSANDRA_PORT
+#                         value: '9042'
+#                       - name: CASSANDRA_USER
+#                         value: 'cron_user'
+#                       - name: CASSANDRA_PASSWORD
+#                         value: 'cron_password'
+#                       - name: CASSANDRA_KEYSPACE
+#                         value: 'zenprice'
+#                       - name: CASSANDRA_SRC_TABLE
+#                         value: 'pickle_data'
+#                       - name: CASSANDRA_DST_TABLE
+#                         value: 'pickle_results'
+#                       - name: PRODUCT_MODEL
+#                         value: 'samsung Galaxy A51 128GB'
+#                       - name: PRODUCT_ID
+#                         value: '93'
+#                       - name: PRODUCT_SUB
+#                         value: 'unlocked'
+#                       - name: COMPANY
+#                         value: 'Abcdin'
+#                       - name: COUNTRY
+#                         value: 'CL'
+#                       - name: PUSHGATEWAY_URL
+#                         value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                       - name: PUSHGATEWAY_PORT
+#                         value: '9091'
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#     name: predicter-3
+
+# spec:
+#     # serviceName: predicter-svc
+#     selector:
+#         matchLabels:
+#             app: predicter-3
+
+#     template:
+#         metadata:
+#             labels:
+#                 app: predicter-3
+
+#         spec:
+#             # restartPolicy: OnFailure
+#             containers:
+#                 - name: predicter-3
+#                   image: d1scak3/predicter:lstm_simple
+#                   command: ["sleep", "20000000"]
+#                   resources:
+#                       requests:
+#                           memory: '256Mi'
+#                           cpu: '250m'
+#                       limits:
+#                           memory: '256Mi'
+#                           cpu: '250m'
+#                   env:
+#                       - name: CASSANDRA_URL
+#                         value: 'cassandra.cassandra.svc.cluster.local'
+#                       - name: CASSANDRA_PORT
+#                         value: '9042'
+#                       - name: CASSANDRA_USER
+#                         value: 'cron_user'
+#                       - name: CASSANDRA_PASSWORD
+#                         value: 'cron_password'
+#                       - name: CASSANDRA_KEYSPACE
+#                         value: 'zenprice'
+#                       - name: CASSANDRA_SRC_TABLE
+#                         value: 'pickle_data'
+#                       - name: CASSANDRA_DST_TABLE
+#                         value: 'pickle_results'
+#                       - name: PRODUCT_MODEL
+#                         value: 'samsung Galaxy A51 128GB'
+#                       - name: PRODUCT_ID
+#                         value: '93'
+#                       - name: PRODUCT_SUB
+#                         value: 'unlocked'
+#                       - name: COMPANY
+#                         value: 'Abcdin'
+#                       - name: COUNTRY
+#                         value: 'CL'
+#                       - name: PUSHGATEWAY_URL
+#                         value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                       - name: PUSHGATEWAY_PORT
+#                         value: '9091'

@@ -1,0 +1,41 @@
+query tableValues {
+    zenprice_values {
+        values {
+            id
+            product_id
+            price_id
+            plan_id
+            created_timestamp
+            updated_timestamp
+            currency
+            brand
+            model
+            subscription
+        }
+    }
+}
+
+query tableValues {
+    pickle_results {
+        values {
+            product_id
+            timestamp
+            model
+            subscription
+            prediction
+        }
+    }
+}
+
+query pickle_results {
+    pickle_results {
+        values {
+            product_id
+            company
+            timestamp
+            model
+            product_id
+            prediction
+        }
+    }
+}

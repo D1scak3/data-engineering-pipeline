@@ -1,0 +1,4 @@
+wheel==0.40.0
+cassandra-driver==3.28.0
+pandas==2.0.0
+prometheus-client==0.16.0

@@ -1,0 +1,22 @@
+query tableValues {
+    pickle_data {
+        values {
+            id
+            product_id
+            model
+            subscription
+        }
+    }
+}
+
+query tableValues {
+    pickle_results {
+        values {
+            product_id
+            timestamp
+            model
+            subscription
+            prediction
+        }
+    }
+}

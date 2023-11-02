@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: importer
+
+spec:
+    # serviceName: predicter-svc
+    replicas: 1
+    selector:
+        matchLabels:
+            app: importer
+
+    template:
+        metadata:
+            labels:
+                app: importer
+
+        spec:
+            # restartPolicy: OnFailure
+            containers:
+                - name: importer
+                  image: d1scak3/importer:3.0
+                  resources:
+                      requests:
+                          memory: '256M'
+                          cpu: '200m'
+                      limits:
+                          memory: '256M'
+                          cpu: '200m'
+                  command: ['sleep', '10000000']
+                  env:
+                      - name: KAFKA_URL
+                        value: 'my-cluster-kafka-0.my-cluster-kafka-brokers.strimzi-system.svc.cluster.local'
+                      - name: KAFKA_PORT
+                        value: '9092'
+                      - name: KAFKA_TOPIC
+                        value: 'pickle-data'
+                      - name: KAFKA_CONSUMER_GROUP
+                        value: 'g1'
+                      - name: MEASURE_BATCH_SIZE
+                        value: '1000'
+                      - name: CASSANDRA_URL
+                        value: 'cassandra.cassandra.svc.cluster.local'
+                      - name: CASSANDRA_PORT
+                        value: '9042'
+                      - name: CASSANDRA_USER
+                        value: 'cron_user'
+                      - name: CASSANDRA_PASSWORD
+                        value: 'cron_password'
+                      - name: CASSANDRA_KEYSPACE
+                        value: 'zenprice'
+                      - name: CASSANDRA_TABLE
+                        value: 'pickle_data_unique' # THIS IS IMPORTANT
+                      - name: PUSHGATEWAY_URL
+                        value: 'pushgateway-svc.monitoring.svc.cluster.local'
+                      - name: PUSHGATEWAY_PORT
+                        value: '9091'
+                      - name: INSTANCE_LOG_ID
+                        value: 'manual' # THIS IS IMPORTANT

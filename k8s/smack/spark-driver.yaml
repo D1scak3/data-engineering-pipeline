@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spark-driver
+
+spec:
+  serviceName: spark-driver
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark
+
+  template:
+    metadata:
+      labels:
+        app: spark
+
+    spec:
+      containers:
+      - name: spark-py
+        image: apache/spark-py:v3.3.2
+        args: ["/opt/spark/bin/pyspark"]
+        # - "/bin/bash"
+        # - "-c"
+        # - "/opt/spark/bin/pyspark"
+        ports:
+        - containerPort: 8080
+        - containerPort: 7077
+      #   volumeMounts:
+      #   - name: data
+      #     mountPath: /data
+
+      # volumes:
+      # - name: data
+      #   persistentVolumeClaim:
+      #     claimName: spark-data
+      #     storageClass: local-storage
+
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: spark-data
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     resources:
+  #       requests:
+  #         storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-driver
+
+spec:
+  type: LoadBalancer
+
+  selector:
+    app: spark
+  
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: spark
+      port: 7077
+      targetPort: 7077

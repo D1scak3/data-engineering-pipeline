@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spark-worker
+
+spec:
+  serviceName: spark-worker
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark
+
+  template:
+    metadata:
+      labels:
+        app: spark
+
+    spec:
+      containers:
+      - name: spark
+        image: apache/spark-py:v3.3.2
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "bin/pyspark --master k8s://https://spark-driver:7077"
+        # ports:
+        # - containerPort: 8080
+        # - containerPort: 7077
+  #       volumeMounts:
+  #       - name: data
+  #         mountPath: /data
+
+  #     volumes:
+  #     - name: data
+  #       persistentVolumeClaim:
+  #         claimName: spark-data
+
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: spark-data
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     resources:
+  #       requests:
+  #         storage: 1Gi
+
+# ---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: spark-worker
+
+# spec:
+#   type: LoadBalancer
+
+#   selector:
+#     app: spark
+  
+#   ports:
+#     - name: http
+#       port: 8080
+#       targetPort: 8080
+#     - name: spark
+#       port: 7077
+#       targetPort: 7077

@@ -1,0 +1,61 @@
+version: '3'
+services:
+    cassandra-seed:
+        image: cassandra:4.0
+        # container_name: cassandra-seed
+        # deploy:
+        #   replicas: 1
+        ports:
+            - '7000:7000'
+            - '9042:9042'
+        environment:
+            # - CASSANDRA_LISTEN_ADDRESS=auto
+            # - CASSANDRA_BROADCAST_ADDRESS=localhost:7000
+            # - CASSANDRA_RPC_ADDRESS=0.0.0.0
+            # - CASSANDRA_SEEDS=cassandra-seed
+            - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+            - CASSANDRA_BROADCAST_ADDRESS=cassandra-seed
+            - CASSANDRA_CLUSTER_NAME=zenprice-cluster
+        # volumes:
+        #   - ./cassandra.yaml:/etc/cassandra/cassandra.yaml:ro
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'cqlsh',
+                    '-u cassandra',
+                    '-p cassandra',
+                    '-e describe keyspaces',
+                ]
+            interval: 15s
+            timeout: 10s
+            retries: 10
+
+    cassandra-node:
+        image: cassandra:4.0
+        # container_name: cassandra-node
+        # deploy:
+        #   replicas: 1
+        ports:
+            # - "7001:7000"
+            - '9043:9042'
+        depends_on:
+            - cassandra-seed
+        environment:
+            - CASSANDRA_SEEDS=cassandra-seed
+            - CASSANDRA_CLUSTER_NAME=zenprice-cluster
+            - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+        # volumes:
+        #   - ./cassandra.yaml:/etc/cassandra/cassandra.yaml:ro
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'cqlsh',
+                    '-u cassandra',
+                    '-p cassandra',
+                    '-e describe keyspaces',
+                ]
+            interval: 15s
+            timeout: 10s
+            retries: 10

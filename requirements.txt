@@ -1,0 +1,13 @@
+confluent_kafka==2.0.2
+dtaidistance==2.3.10
+keras==2.11.0
+matplotlib==3.7.1
+numpy==1.24.2
+pandas==1.5.3
+pyspark==3.3.2
+scikit_learn==1.2.2
+statsmodels==0.13.5
+tensorflow==2.11.0
+prometheus_client==0.16.0
+cassandra-driver==3.27
+venv-pack==0.2.0

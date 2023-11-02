@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+    spark-master:
+        image: d1scak3/pyspark-master:1.0
+        ports:
+            - '4040:4040'
+            - '7077:7077'
+            - '8080:8080'
+        environment:
+            - SPARK_MASTER_HOST=spark-master
+            - SPARK_MASTER_PORT=7077
+            - SPARK_MASTER_WEBUI_PORT=8080
+            - SPARK_NO_DAEMONIZE=true
+            # - SPARK_MASTER="spark://spark-master:7077"
+            # - SPARK_WORKLOAD=master
+        volumes:
+            - ./apps:/opt/spark-apps
+            - ./apps:/opt/spark-data
+
+    spark-worker:
+        image: d1scak3/pyspark-cluster:1.0
+        deploy:
+            replicas: 2
+        depends_on:
+            - spark-master
+        # ports:
+        #   - "7077:7077"
+        #   - "8080:8080"
+        environment:
+            - SPARK_MASTER=spark://spark-master:7077
+            # - SPARK_WORKLOAD=worker
+        volumes:
+            - ./apps:/opt/spark-apps
+            - ./apps:/opt/spark-data

@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+    labels:
+        app: coordinator
+    name: coordinator-svc
+
+spec:
+    clusterIP: None
+    ports:
+        - port: 8081
+    selector:
+        app: coordinator
+
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+    name: coordinator-lb-svc
+    labels:
+        app: coordinator
+
+spec:
+    selector:
+        app: coordinator
+    ports:
+        - port: 8081
+          targetPort: 8081
+    type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: coordinator-deployment
+    labels:
+        app: coordinator
+
+spec:
+    selector:
+        matchLabels:
+            app: coordinator
+
+    template:
+        metadata:
+            labels:
+                app: coordinator
+
+        spec:
+            containers:
+                - name: coordinator
+                  image: stargateio/coordinator-4_0:v2
+                  ports:
+                      - containerPort: 8081
+                  resources:
+                      limits:
+                          cpu: '0.5'
+                          memory: 1G
+                      requests:
+                          cpu: '0.5'
+                          memory: 1G
+                  env:
+                      - name: JAVA_OPTS
+                        value: '-Dstargate.auth_tokenttl=3600'
+                      - name: DEVELOPER_MODE
+                        value: 'false'
+                      - name: CLUSTER_NAME
+                        value: 'zenprice'
+                      - name: SEED
+                        value: 'cassandra-0.cassandra.cassandra.svc.cluster.local'
+                      - name: CLUSTER_VERSION
+                        value: '4.0'
+                      - name: RACK_NAME
+                        value: 'rack1'
+                      - name: DATACENTER_NAME
+                        value: 'dc1'
+                      - name: ENABLE_AUTH
+                        value: 'true'
+                      - name: SIMPLE_SNITCH
+                        value: 'false'

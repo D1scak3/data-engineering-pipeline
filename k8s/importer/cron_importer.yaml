@@ -1,0 +1,279 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+    name: cron-importer-0
+
+spec:
+    concurrencyPolicy: Allow
+    schedule: '*/2 * * * *'
+    successfulJobsHistoryLimit: 3
+    failedJobsHistoryLimit: 3
+    jobTemplate:
+        spec:
+            template:
+                spec:
+                    containers:
+                        - name: importer
+                          image: d1scak3/importer:3.0
+                          imagePullPolicy: Always
+                          resources:
+                              requests:
+                                  memory: '256M'
+                                  cpu: '250m'
+                              limits:
+                                  memory: '256M'
+                                  cpu: '250m'
+                          env:
+                              - name: KAFKA_URL
+                                value: 'my-cluster-kafka-0.my-cluster-kafka-brokers.strimzi-system.svc.cluster.local'
+                              - name: KAFKA_PORT
+                                value: '9092'
+                              - name: KAFKA_TOPIC
+                                value: 'pickle-data'
+                              - name: KAFKA_CONSUMER_GROUP
+                                value: 'g1'
+                              - name: MEASURE_BATCH_SIZE
+                                value: '1000'
+                              - name: CASSANDRA_URL
+                                value: 'cassandra.cassandra.svc.cluster.local'
+                              - name: CASSANDRA_PORT
+                                value: '9042'
+                              - name: CASSANDRA_USER
+                                value: 'cron_user'
+                              - name: CASSANDRA_PASSWORD
+                                value: 'cron_password'
+                              - name: CASSANDRA_KEYSPACE
+                                value: 'zenprice'
+                              - name: CASSANDRA_TABLE
+                                value: 'pickle_data' # THIS IS IMPORTANT
+                              - name: PUSHGATEWAY_URL
+                                value: 'pushgateway-svc.monitoring.svc.cluster.local'
+                              - name: PUSHGATEWAY_PORT
+                                value: '9091'
+                              - name: INSTANCE_LOG_ID
+                                value: '0' # THIS IS IMPORTANT
+                    restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-importer-1
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: importer
+#                           image: d1scak3/importer:3.0
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                               limits:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                           env:
+#                               - name: KAFKA_URL
+#                                 value: 'my-cluster-kafka-0.my-cluster-kafka-brokers.strimzi-system.svc.cluster.local'
+#                               - name: KAFKA_PORT
+#                                 value: '9092'
+#                               - name: KAFKA_TOPIC
+#                                 value: 'pickle-data'
+#                               - name: KAFKA_CONSUMER_GROUP
+#                                 value: 'g2'
+#                               - name: MEASURE_BATCH_SIZE
+#                                 value: '1000'
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cron_user'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cron_password'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_TABLE
+#                                 value: 'pickle_data'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: 't1'
+#                     restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-importer-2
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: importer
+#                           image: d1scak3/importer:3.0
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                               limits:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                           env:
+#                               - name: KAFKA_URL
+#                                 value: 'my-cluster-kafka-0.my-cluster-kafka-brokers.strimzi-system.svc.cluster.local'
+#                               - name: KAFKA_PORT
+#                                 value: '9092'
+#                               - name: KAFKA_TOPIC
+#                                 value: 'pickle-data'
+#                               - name: KAFKA_CONSUMER_GROUP
+#                                 value: 'g3'
+#                               - name: MEASURE_BATCH_SIZE
+#                                 value: '1000'
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cron_user'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cron_password'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_TABLE
+#                                 value: 'pickle_data'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: 't2'
+#                     restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-importer-3
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: importer
+#                           image: d1scak3/importer:3.0
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                               limits:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                           env:
+#                               - name: KAFKA_URL
+#                                 value: 'my-cluster-kafka-0.my-cluster-kafka-brokers.strimzi-system.svc.cluster.local'
+#                               - name: KAFKA_PORT
+#                                 value: '9092'
+#                               - name: KAFKA_TOPIC
+#                                 value: 'pickle-data'
+#                               - name: KAFKA_CONSUMER_GROUP
+#                                 value: 'g4'
+#                               - name: MEASURE_BATCH_SIZE
+#                                 value: '1000'
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cron_user'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cron_password'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_TABLE
+#                                 value: 'pickle_data'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: "t3"
+#                     restartPolicy: OnFailure
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#     name: cron-importer-4
+
+# spec:
+#     concurrencyPolicy: Allow
+#     schedule: '*/2 * * * *'
+#     successfulJobsHistoryLimit: 3
+#     failedJobsHistoryLimit: 3
+#     jobTemplate:
+#         spec:
+#             template:
+#                 spec:
+#                     containers:
+#                         - name: importer
+#                           image: d1scak3/importer:3.0
+#                           imagePullPolicy: Always
+#                           resources:
+#                               requests:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                               limits:
+#                                   memory: '256M'
+#                                   cpu: '250m'
+#                           env:
+#                               - name: KAFKA_URL
+#                                 value: 'my-cluster-kafka-0.my-cluster-kafka-brokers.strimzi-system.svc.cluster.local'
+#                               - name: KAFKA_PORT
+#                                 value: '9092'
+#                               - name: KAFKA_TOPIC
+#                                 value: 'pickle-data'
+#                               - name: KAFKA_CONSUMER_GROUP
+#                                 value: 'g4'
+#                               - name: MEASURE_BATCH_SIZE
+#                                 value: '1000'
+#                               - name: CASSANDRA_URL
+#                                 value: 'cassandra.cassandra.svc.cluster.local'
+#                               - name: CASSANDRA_PORT
+#                                 value: '9042'
+#                               - name: CASSANDRA_USER
+#                                 value: 'cron_user'
+#                               - name: CASSANDRA_PASSWORD
+#                                 value: 'cron_password'
+#                               - name: CASSANDRA_KEYSPACE
+#                                 value: 'zenprice'
+#                               - name: CASSANDRA_TABLE
+#                                 value: 'pickle_data'
+#                               - name: PUSHGATEWAY_URL
+#                                 value: 'pushgateway-svc.monitoring.svc.cluster.local'
+#                               - name: PUSHGATEWAY_PORT
+#                                 value: '9091'
+#                               - name: INSTANCE_LOG_ID
+#                                 value: "t4"
+#                     restartPolicy: OnFailure

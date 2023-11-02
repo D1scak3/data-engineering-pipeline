@@ -1,0 +1,62 @@
+apiVersion: extensions/v1
+kind: Deployment
+metadata:
+    labels:
+        app: nginx
+    name: nginx
+spec:
+    replicas: 2
+    template:
+        metadata:
+            labels:
+                app: nginx
+        spec:
+            #podAntiAffinity will not let two nginx pods to run in a same node machine
+            affinity:
+                podAntiAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        - labelSelector:
+                              matchExpressions:
+                                  - key: app
+                                    operator: In
+                                    values:
+                                        - nginx
+                          topologyKey: kubernetes.io/hostname
+            containers:
+                - name: nginx
+                  image: nginx
+                  ports:
+                      - containerPort: 80
+                  resources:
+                      requests:
+                          memory: '512Mi'
+                          cpu: '1000m'
+                      limits:
+                          memory: '1024Mi'
+                          cpu: '2000m'
+                  volumeMounts:
+                      - name: nginx-configs
+                        mountPath: /etc/nginx/conf.d
+                  livenessProbe:
+                      httpGet:
+                          path: /
+                          port: 80
+            # Load the configuration files for nginx
+            volumes:
+                - name: nginx-configs
+                  configMap:
+                      name: nginx-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: nginx-svc
+spec:
+    selector:
+        app: nginx
+    type: NodePort
+    ports:
+        - protocol: 'TCP'
+          nodePort: 32111
+          port: 80
