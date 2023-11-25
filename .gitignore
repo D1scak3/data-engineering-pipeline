@@ -6,7 +6,6 @@ data/*
 *.zip
 *.tsv
 *.psql
-strimzi
 model_data
 .vscode
 random_notes.md
