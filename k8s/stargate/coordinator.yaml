@@ -54,13 +54,13 @@ spec:
                   image: stargateio/coordinator-4_0:v2
                   ports:
                       - containerPort: 8081
-                  resources:
-                      limits:
-                          cpu: '0.5'
-                          memory: 1G
-                      requests:
-                          cpu: '0.5'
-                          memory: 1G
+                  # resources:
+                  #     limits:
+                  #         cpu: '1.0'
+                  #         memory: 2G
+                  #     requests:
+                  #         cpu: '1.0'
+                  #         memory: 2G
                   env:
                       - name: JAVA_OPTS
                         value: '-Dstargate.auth_tokenttl=3600'

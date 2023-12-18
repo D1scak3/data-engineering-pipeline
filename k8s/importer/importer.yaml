@@ -50,7 +50,8 @@ spec:
                       - name: CASSANDRA_KEYSPACE
                         value: 'zenprice'
                       - name: CASSANDRA_TABLE
-                        value: 'pickle_data_unique' # THIS IS IMPORTANT
+                        # value: 'pickle_data_unique' # THIS IS IMPORTANT
+                        value: 'pickle_data'
                       - name: PUSHGATEWAY_URL
                         value: 'pushgateway-svc.monitoring.svc.cluster.local'
                       - name: PUSHGATEWAY_PORT

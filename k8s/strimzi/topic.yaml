@@ -1,7 +1,22 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
-    name: zenprice
+    name: pickle-data
+    labels:
+        strimzi.io/cluster: my-cluster
+spec:
+    partitions: 2
+    replicas: 3
+    config:
+        cleanup.policy: delete
+        compression.type: uncompressed
+        retention.ms: 7200000
+        segment.bytes: 1073741824
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+    name: pickle-data-unique
     labels:
         strimzi.io/cluster: my-cluster
 spec:

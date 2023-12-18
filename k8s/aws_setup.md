@@ -4,7 +4,7 @@
 
 ### install kubectl
 
-```
+```bash
 curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
 
 chmod +x ./kubectl
@@ -18,7 +18,7 @@ kubectl version --short --client
 
 ### install eksctl
 
-```
+```bash
 ARCH=amd64
 PLATFORM=$(uname -s)_$ARCH
 
@@ -37,7 +37,7 @@ Use temporary credentials present in the start link to grant access to the aws c
 
 ### Get information about current user and aws-auth configmap
 
-```
+```bash
 kubectl describe -n kube-system configmap/aws-auth
 
 kubectl get roles -A
@@ -58,13 +58,13 @@ aws eks describe-cluster --name cluster-name --query cluster.certificateAuthorit
 Create cluster's control pane and configure access.
 Use for both cluster creator account and ec2 ci-cd-helper.
 
-```
+```bash
 aws eks update-kubeconfig --region region-code --name cluster-name
 ```
 
 ### Add new role to aws-auth (w/ cluster creator account)
 
-```
+```bash
 # create identity mapping
 eksctl create iamidentitymapping \
 --cluster cluster-name \
