@@ -8,35 +8,35 @@ Ensure python version of virtual environment is the same as the one present on S
 
 ## Pre-deployment setup
 
--   create python virtual environment and install dependencies (**use python3.9**)
+- create python virtual environment and install dependencies (**use python3.9**)
 
-```
+```shell
 python3.9 -m venv env            # create env
 source env/bin/activate           # activate env
 pip install -r requiremetns.txt   # install requirements
 ```
 
--   create docker network
+- create docker network
 
-```
+```shell
 docker network create smack   # create the network
 ```
 
--   make sure **cassandra#.yaml** are in the same directory as the **docker.compose.yaml**
+- make sure **cassandra#.yaml** are in the same directory as the **docker.compose.yaml**
 
--   deploy pipeline through the **docker-compose.yml** file
+- deploy pipeline through the **docker-compose.yml** file
 
-```
+```shell
 docker compose -f docker/docker-compose.yaml up
 ```
 
--   wait for evey container to be up (besides kafka container responsible for creating the topics)
+- wait for evey container to be up (besides kafka container responsible for creating the topics)
 
 ## Post-deployment setup
 
--   create access token for accessing graphql api w/ cassandra username and password (curl against stargate coordinator on port **8081**)
+- create access token for accessing graphql api w/ cassandra username and password (curl against stargate coordinator on port **8081**)
 
-```
+```shell
 curl -L -X POST 'http://localhost:8081/v1/auth' \
   -H 'Content-Type: application/json' \
   --data-raw '{
@@ -45,45 +45,45 @@ curl -L -X POST 'http://localhost:8081/v1/auth' \
 }'
 ```
 
--   put token on graphql api (access http://localhost:8085/playground)
+- put token on graphql api (access <http://localhost:8085/playground>)
 
--   create keyspace on cassandra cluster with python script
+- create keyspace on cassandra cluster with python script
 
-```
+```shell
 cd src/cassandra
 python3 db_init.py -i 127.0.0.0 -p 9042 -k zenprice
 ```
 
 ## Importing data into the pipeline
 
--   execute manual data importer (inputs data from a pickle file into kafka)
--   make sure the **exporter_conf.ini** file has the intended kafka IP (localhost:29092, since the connection is made from the host)
+- execute manual data importer (inputs data from a pickle file into kafka)
+- make sure the **exporter_conf.ini** file has the intended kafka IP (localhost:29092, since the connection is made from the host)
 
-```
+```shell
 cd /src/postgres
 python3 manual_exporter.py -c exporter_conf.ini -t pickle_data -f long_product_group_id_23
 ```
 
 ## Spark tasks in order of execution
 
--   create virtual environment pack to be submited to spark
+- create virtual environment pack to be submited to spark
 
-```
+```shell
 cd src/spark
 venv-pack -o pyspark_venv.tar.gz
 ```
 
--   change into **src/spark** directory
--   export enviroment variables to point to pyspark driver and python
+- change into **src/spark** directory
+- export enviroment variables to point to pyspark driver and python
 
-```
+```shell
 export PYSPARK_DRIVER_PYTHON=python
 export PYSPARK_PYTHON=../../env/bin/python
 ```
 
--   submit spark task for storing kafka data into cassandra (ip of kafka is localhost, since spark cant resolve dns)
+- submit spark task for storing kafka data into cassandra (ip of kafka is localhost, since spark cant resolve dns)
 
-```
+```shell
 spark-submit --master spark://localhost:7077/ \
 --archives pyspark_venv.tar.gz#environment \
 db_import.py \
@@ -95,7 +95,7 @@ db_import.py \
 -g g1
 ```
 
--   submit spark task for processing data and storing it into a new cassandra table
+- submit spark task for processing data and storing it into a new cassandra table
 
 ```
 spark-submit --master spark://localhost:7077 \
@@ -112,14 +112,14 @@ delta_predict.py \
 
 ## Query for data through Graphql
 
--   access http://localhost:8085/playground
--   change to the **"graphql" tab** on the top right corner
--   change to the zenprice namespace in by changing the last "path" in the url to the keyspace name
--   run the following graphql query (results shows predictions and final prediction)
+- access <http://localhost:8085/playground>
+- change to the **"graphql" tab** on the top right corner
+- change to the zenprice namespace in by changing the last "path" in the url to the keyspace name
+- run the following graphql query (results shows predictions and final prediction)
 
-```
+```graphql
 query tableValues{
-	zenprice_values
+ zenprice_values
   {
     values
     {
@@ -138,7 +138,7 @@ query tableValues{
 }
 
 query tableValues{
-	pickle_predictions
+ pickle_predictions
   {
     values
     {
@@ -152,9 +152,9 @@ query tableValues{
 }
 ```
 
--   the output of the query (last vlue is the prediction of the product)
+- the output of the query (last vlue is the prediction of the product)
 
-```
+```json
 {
   "data": {
     "pickle_predictions": {

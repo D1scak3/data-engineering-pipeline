@@ -10,8 +10,6 @@ Every command with any kind of path in it considers the root directory as **"k8s
 
 - create minikube cluster and activate plugins (MetalLB, Metrics-Server) <!--, Ingress)-->
 
-<!-- minikube addons enable ingress -->
-
 ```bash
 # create cluster
 minikube start --cpus='8' --memory='8192'
@@ -22,6 +20,16 @@ minikube addons enable metrics-server
 minikube addons enable metallb
 minikube ip # get the ip for MetalLB port range
 minikube addons configure metallb # define port range based on ip
+
+
+# create multi node cluster
+minikube start --cpus='8' --memory='10240' --nodes='2'
+minikube addons disable storage-provisioner
+minikube addons disable default-storageclass
+minikube addons enable volumesnapshots
+minikube addons enable csi-hostpath-driver
+kubectl patch storageclass csi-hostpath-sc -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
 ```
 
 - create custom docker images (cassandra, importer, predicter) and creata storage class (Rancher's local-path-storage)

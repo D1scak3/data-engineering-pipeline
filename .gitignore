@@ -1,5 +1,5 @@
 # Extra stuff
-data/*
+timeseries
 *.tgz
 *.tar.gz
 *.rar

@@ -1,6 +1,0 @@
-FROM apache/spark-py:3.3.1
-
-ENV SPARK_MASTER_URL=spark://spark-master:7077
-# ENV SPARK_MASTER_PORT=7077
-
-CMD [ "/opt/spark/sbin/start-worker.sh", "${SPARK_MASTER_URL}}" ]
