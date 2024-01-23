@@ -1,0 +1,73 @@
+stages:
+    - build
+    - deploy
+
+variables:
+    DATA_ENG_DOCKER_USER: $DATA_ENG_DOCKER_USER
+    DATA_ENG_DOCKER_PASS: $DATA_ENG_DOCKER_PASS
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ''
+    AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+    AWS_DATA_ENG_PIPELINE: $AWS_DATA_ENG_PIPELINE
+    AWS_DATA_ENG_NAMESPACE: $AWS_DATA_ENG_NAMESPACE
+
+importer-build:
+    stage: build
+    image: docker:24.0.4
+    tags:
+        - image.builder
+    services:
+        - docker:24.0.4-dind
+    before_script:
+        - echo $DATA_ENG_DOCKER_PASS | docker login -u $DATA_ENG_DOCKER_USER --password-stdin
+    script:
+        - docker build -f ./k8s/importer/importer.dockerfile -t d1scak3/importer:1.0 ./k8s/importer/
+        - docker push d1scak3/importer:1.0
+    except:
+        - main
+
+predicter-builds:
+    stage: build
+    image: docker:24.0.4
+    tags:
+        - image.builder
+    services:
+        - docker:24.0.4-dind
+    before_script:
+        - echo "$DATA_ENG_DOCKER_PASS" | docker login -u $DATA_ENG_DOCKER_USER --password-stdin
+    script:
+        - docker build -f ./k8s/predicter/predicter_simple.dockerfile -t d1scak3/predicter:lstm_simple ./k8s/predicter/
+        - docker push d1scak3/predicter:lstm_simple
+        - docker build -f ./k8s/predicter/predicter_conv.dockerfile -t d1scak3/predicter:lstm_conv ./k8s/predicter/
+        - docker push d1scak3/predicter:lstm_conv
+    except:
+        - main
+
+jobs-deployment:
+    stage: deploy
+    tags:
+        - jobs.deployer
+    before_script:
+        - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $AWS_DATA_ENG_PIPELINE
+    script:
+        - export KUBECONFIG=~/.kube/config
+        - CRONJOB_NAMES=$(kubectl get cronjobs -n $AWS_DATA_ENG_NAMESPACE -o jsonpath='{.items[*].metadata.name}')
+        - IFS=" " read -ra CRONJOB_ARRAY <<< "$CRONJOB_NAMES"
+        - |+
+            if [ -z "${CRONJOB_ARRAY[@]}" ]; then
+              echo "No cronjobs found. Deploying new cronjobs."
+              kubectl apply -f ./k8s/importer/cron-importer.yaml -n "$AWS_DATA_ENG_NAMESPACE"
+              kubectl apply -f ./k8s/predicter/cron-predicter.yaml -n "$AWS_DATA_ENG_NAMESPACE"
+              echo "Cronjobs deployed."
+            else
+              echo "Deleting cronjobs."
+              for CRONJOB_NAME in "${CRONJOB_ARRAY[@]}"; do
+                kubectl delete cronjob "$CRONJOB_NAME" -n "$AWS_DATA_ENG_NAMESPACE"
+              done
+              echo "Deploying new cronjobs."
+              kubectl apply -f ./k8s/importer/cron-importer.yaml -n "$AWS_DATA_ENG_NAMESPACE"
+              kubectl apply -f ./k8s/predicter/cron-predicter.yaml -n "$AWS_DATA_ENG_NAMESPACE"
+              echo "Cronjobs deployed."
+            fi
+    only:
+        - main
