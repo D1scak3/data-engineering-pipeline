@@ -65,20 +65,20 @@ spec:
                         name: jmx
                       - containerPort: 9042
                         name: cql
-                  # resources:
-                  #     limits:
-                  #         cpu: '1024m'
-                  #         memory: 2Gi
-                  #     requests:
-                  #         cpu: '512m'
-                  #         memory: 1Gi
                   resources:
                       limits:
-                          cpu: '1'
-                          memory: 1G
+                          cpu: '1024m'
+                          memory: 2Gi
                       requests:
-                          cpu: '1'
-                          memory: 1G
+                          cpu: '512m'
+                          memory: 1Gi
+                  # resources:
+                  #     limits:
+                  #         cpu: '1'
+                  #         memory: 1G
+                  #     requests:
+                  #         cpu: '1'
+                  #         memory: 1G
                   securityContext:
                       capabilities:
                           add:
